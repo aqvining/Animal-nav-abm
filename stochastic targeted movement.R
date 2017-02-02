@@ -15,7 +15,7 @@ seek = function (location, target, d = 1, sdAngle = (pi/8)) {
     deviation = rnorm(1, mean = 0, sd = sdAngle)                          
     turn = destAngle + deviation
     newX = location$x[length(location$x)] + cos(turn) * d
-    newY = location$y[length(location$x)] + sin(turn) * d
+    newY = location$y[length(location$y)] + sin(turn) * d
     location = rbind(location, data.frame(x = newX, y = newY))
     return(seek(location, target, d, sdAngle))                            #recursive call
   }
@@ -33,7 +33,7 @@ path2geom_segment = function(path) {
 #######sample script################
 library(ggplot2)
 location = data.frame(x = 0, y = 0)
-target = c(-20, -7)
+target = c(20, -7)
 path = seek(location, target, sdAngle = (pi/6))
 path_ggplot = path2geom_segment(path)
 #plot(x = path$x, y = path$y, col = heat.colors(nrow(path)))
