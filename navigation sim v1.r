@@ -42,9 +42,9 @@ groupSizes = c(1)				#each element of the vector represents a group, the value i
 moveCost = 2				#energy decrease each step a primate moves
 metabCost = 2				#energy decrease each step. If primate moves, this is added to moveCost. Also currently used to determine if a primate should leave current resource (primate leaves when expected foraging return is less than this value)
 rRegen = c(min = 0, max = 0)		#determines density increase of resources for each step. Resources are assigned a value uniformly drawn from this range during environment creation. To scale regen rate to resource value, manually change in fillRegen_rate function
-types = c("AG", "hybrid")		#movement models to simulate across all created environments. Model can handle vector of any length, but currently only has methods for "AG" and "hybrid"
+types = c("AG")		#movement models to simulate across all created environments. Model can handle vector of any length, but currently only has methods for "AG" and "hybrid"
 
-P = list(defEn = defaultEnergy, fieldSize = fieldSize, resAvail = resourceAvail, resSR = resSizeRange, resNum = resourceNum, clus = cluster, depI = depletionIndex, k = k, pSpeed = 1, grSizes = groupSizes, mCost = moveCost, metabCost = metabCost, rRegen = rRegen, types = types)  #saves all parameters to a list that can easily be passed to functions
+P = list(defEn = defaultEnergy, fieldSize = fieldSize, resAvail = resourceAvail, resSR = resSizeRange, resNum = resourceNum, clus = cluster, depI = depletionIndex, k = k, pSpeed = 1, turnDev = turnDev, grSizes = groupSizes, mCost = moveCost, metabCost = metabCost, rRegen = rRegen, types = types)  #saves all parameters to a list that can easily be passed to functions
 
 ###################################FUNCTIONS####################################################
 
@@ -331,6 +331,13 @@ plotEnergy = function(run, steps = 0) {
 		for (i in 2:length(run)) lines(x = energies[,i], col = i)
 	}
 }
+
+plotPath = function(run, primate = c(1,1)){
+  #plots the path of a single primate from a run object. The "run" input should be only the subset of one "type" of run, eg. "AG".
+  #The "primate" input should be a 2 value vector giving the group number and individual number of the target agent
+  path = lapply(run, function(x, y) x$allPrimates[[y[1]]][[y[2]]]@location, y = primate)
+  path = matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE)
+}
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
@@ -338,7 +345,7 @@ plotEnergy = function(run, steps = 0) {
 
 #~~~~~~Simple~~~~~~~~#
 #uncomment following lines to run
-nsteps = 100
+nsteps = 50
 run = runSimulation(P, nsteps)
 plotRun(run)
 
