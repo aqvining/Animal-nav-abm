@@ -37,6 +37,7 @@ cluster = 0.2				#probability that a new resource will be created between 1 and 
 depletionIndex = 0			#scales the diminishing return factor of resources. At 0, resource density has no impact on foraging return. At 1, foraging return is multiplied by the density
 k = 1						#distance exponent in gravity model. The simple gravity score is Size/ Distance ^ k
 primateSpeed = 1				#how many units a primate can move per step
+turnDev = pi/4          #standard deviation of turn angle (mean is toward target dest)
 groupSizes = c(1)				#each element of the vector represents a group, the value is the size of the group. Currently, all individuals are created on the same point, making more than one individual indistinguisable from increasing the foraging rate of a single individual. plotEnergy function does not handle multiple primates yet
 moveCost = 2				#energy decrease each step a primate moves
 metabCost = 2				#energy decrease each step. If primate moves, this is added to moveCost. Also currently used to determine if a primate should leave current resource (primate leaves when expected foraging return is less than this value)
@@ -95,7 +96,7 @@ primateValidity = function(object) {
   else TRUE
 }
 
-newPrimate = setClass("primate", slots = c(location = "numeric", LTM = "data.frame", energy = "numeric", forageEf = "numeric", speed = "numeric", type = "character"), validity = primateValidity)  #creates the primate class of objects
+newPrimate = setClass("primate", slots = c(location = "numeric", LTM = "data.frame", energy = "numeric", forageEf = "numeric", speed = "numeric", turnDev = "numeric", type = "character"), validity = primateValidity)  #creates the primate class of objects
 #*note there are currently no primate specific methods. This exists as a class mostly to allow expansion of subclasses by movement type or dominance in future versions
 
 
@@ -105,7 +106,7 @@ buildPrimate = function(location, environ, P, type) {
 #output: an object of class primate
 #most slots are filled from the parameters list. If forage efficiency is change, add as a parameter.
 #LTM filled from environment, with columns added for gravity and j for location. *NOTE* Future version may implement limited memory size, which will need a more sophistacted LTM creation
-	primate = newPrimate(location = location, LTM = environ, energy = P$defEn, forageEf = 0.2, speed = P$pSpeed, type = type)
+	primate = newPrimate(location = location, LTM = environ, energy = P$defEn, forageEf = 0.2, speed = P$pSpeed, turnDev = P$turnDev, type = type)
 	primate@LTM$gravity = mapply(calcGravity, coordinates = primate@LTM$coordinates, 
 		return_value = primate@LTM$return_value, density = primate@LTM$density, MoreArgs= list(location = primate@location, k = P$k))
 	primate@LTM$j = mapply(calc_j, i = 1:nrow(primate@LTM), 
@@ -238,7 +239,9 @@ getDestHybrid = function(primate, P) {
 }
 
 updateLoc = function(primate, dest) {
-	heading = unname(atan2(x = dest["x"] - primate@location["x"], y = dest["y"] - primate@location["y"]))
+	targetAng = unname(atan2(x = dest["x"] - primate@location["x"], y = dest["y"] - primate@location["y"]))
+	deviation = rnorm(1, mean = 0, sd = primate@turnDev)
+	heading = targetAng + deviation
 	moveVector = c(x = cos(heading) * primate@speed, y = sin(heading) * primate@speed)
 	primate@location + moveVector
 }

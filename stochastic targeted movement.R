@@ -33,8 +33,8 @@ path2geom_segment = function(path) {
 #######sample script################
 library(ggplot2)
 location = data.frame(x = 0, y = 0)
-target = c(20, -7)
-path = seek(location, target, sdAngle = (pi/6))
+target = c(10, 10)
+path = seek(location, target, sdAngle = (pi/4))
 path_ggplot = path2geom_segment(path)
 #plot(x = path$x, y = path$y, col = heat.colors(nrow(path)))
 ggplot(path_ggplot, aes(x, y)) + geom_segment(aes(xend = newX, yend = newY))
