@@ -41,7 +41,7 @@ turnDev = pi/4          #standard deviation of turn angle (mean is toward target
 groupSizes = c(1)				#each element of the vector represents a group, the value is the size of the group. Currently, all individuals are created on the same point, making more than one individual indistinguisable from increasing the foraging rate of a single individual. plotEnergy function does not handle multiple primates yet
 moveCost = 2				#energy decrease each step a primate moves
 metabCost = 2				#energy decrease each step. If primate moves, this is added to moveCost. Also currently used to determine if a primate should leave current resource (primate leaves when expected foraging return is less than this value)
-rRegen = c(min = 0, max = 0)		#determines density increase of resources for each step. Resources are assigned a value uniformly drawn from this range during environment creation. To scale regen rate to resource value, manually change in fillRegen_rate function
+rRegen = c(min = 0.01, max = 0.01)		#determines density increase of resources for each step. Resources are assigned a value uniformly drawn from this range during environment creation. To scale regen rate to resource value, manually change in fillRegen_rate function
 types = c("AG")		#movement models to simulate across all created environments. Model can handle vector of any length, but currently only has methods for "AG" and "hybrid"
 
 P = list(defEn = defaultEnergy, fieldSize = fieldSize, resAvail = resourceAvail, resSR = resSizeRange, resNum = resourceNum, clus = cluster, depI = depletionIndex, k = k, pSpeed = 1, turnDev = turnDev, grSizes = groupSizes, mCost = moveCost, metabCost = metabCost, rRegen = rRegen, types = types)  #saves all parameters to a list that can easily be passed to functions
@@ -338,7 +338,7 @@ plotPath = function(run, primate = c(1,1)){
   path = lapply(run, function(x, y) x$allPrimates[[y[1]]][[y[2]]]@location, y = primate) #get location coordinates for all times
   path = data.frame(matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE)) #convert location from list of cordinates to df with x and y columns
   colnames(path) = c("x", "y")
-  pathPlot = ggplot(path2geom_segment(path), aes(x, y)) + geom_segment(aes(xend = newX, yend = newY, color = colorRampPalette(c("red", "blue"))(49))) + theme(legend.position = "none")
+  pathPlot = ggplot(path2geom_segment(path), aes(x, y)) + geom_segment(aes(xend = newX, yend = newY, color = colorRampPalette(c("red", "blue"))(length(x)))) + theme(legend.position = "none")
   envCoord = run[[1]]$environ$coordinates         #get patch coordinates from first time step
   envCoord = data.frame(matrix(unlist(envCoord), nrow = length(envCoord), ncol = 2, byrow = TRUE)) #convert patch locations from list of cordinates to df with x and y columns
   colnames(envCoord) = c("x", "y")
@@ -360,8 +360,9 @@ path2geom_segment = function(path) {
 
 #~~~~~~Simple~~~~~~~~#
 #uncomment following lines to run
-nsteps = 50
+nsteps = 500
 run = runSimulation(P, nsteps)
-plotRun(run)
+plotPath(run$AG)
+#plotRun(run)
 
 
