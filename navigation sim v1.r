@@ -336,7 +336,22 @@ plotPath = function(run, primate = c(1,1)){
   #plots the path of a single primate from a run object. The "run" input should be only the subset of one "type" of run, eg. "AG".
   #The "primate" input should be a 2 value vector giving the group number and individual number of the target agent
   path = lapply(run, function(x, y) x$allPrimates[[y[1]]][[y[2]]]@location, y = primate)
-  path = matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE)
+  path = data.frame(matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE))
+  colnames(path) = c("x", "y")
+  pathPlot = ggplot(path2geom_segment(path), aes(x, y)) + geom_segment(aes(xend = newX, yend = newY))
+  envCoord = run[[1]]$environ$coordinates
+  envCoord = data.frame(matrix(unlist(envCoord), nrow = length(envCoord), ncol = 2, byrow = TRUE))
+  colnames(envCoord) = c("x", "y")
+  pathPlot +  geom_point(data = envCoord, mapping = aes(x, y))
+}
+
+path2geom_segment = function(path) {
+  #takes a matrix with rows of x,y coords and and formats for use with geom_segment plotting in ggplot2
+  path$newX = NA
+  path$newY = NA
+  path$newX[1:(nrow(path) -1)] = path$x[2:nrow(path)]
+  path$newY[1:(nrow(path) -1)] = path$y[2:nrow(path)]
+  path[1:(nrow(path) -1),]
 }
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
