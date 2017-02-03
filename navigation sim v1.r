@@ -335,14 +335,14 @@ plotEnergy = function(run, steps = 0) {
 plotPath = function(run, primate = c(1,1)){
   #plots the path of a single primate from a run object. The "run" input should be only the subset of one "type" of run, eg. "AG".
   #The "primate" input should be a 2 value vector giving the group number and individual number of the target agent
-  path = lapply(run, function(x, y) x$allPrimates[[y[1]]][[y[2]]]@location, y = primate)
-  path = data.frame(matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE))
+  path = lapply(run, function(x, y) x$allPrimates[[y[1]]][[y[2]]]@location, y = primate) #get location coordinates for all times
+  path = data.frame(matrix(unlist(path), nrow = length(path), ncol = 2, byrow = TRUE)) #convert location from list of cordinates to df with x and y columns
   colnames(path) = c("x", "y")
-  pathPlot = ggplot(path2geom_segment(path), aes(x, y)) + geom_segment(aes(xend = newX, yend = newY))
-  envCoord = run[[1]]$environ$coordinates
-  envCoord = data.frame(matrix(unlist(envCoord), nrow = length(envCoord), ncol = 2, byrow = TRUE))
+  pathPlot = ggplot(path2geom_segment(path), aes(x, y)) + geom_segment(aes(xend = newX, yend = newY, color = colorRampPalette(c("red", "blue"))(49))) + theme(legend.position = "none")
+  envCoord = run[[1]]$environ$coordinates         #get patch coordinates from first time step
+  envCoord = data.frame(matrix(unlist(envCoord), nrow = length(envCoord), ncol = 2, byrow = TRUE)) #convert patch locations from list of cordinates to df with x and y columns
   colnames(envCoord) = c("x", "y")
-  pathPlot +  geom_point(data = envCoord, mapping = aes(x, y))
+  pathPlot +  geom_point(data = envCoord, mapping = aes(x, y), shape = 1, size = 3)
 }
 
 path2geom_segment = function(path) {
